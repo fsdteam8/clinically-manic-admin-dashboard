@@ -13,6 +13,7 @@ import {
   Users,
   Mail,
   Settings,
+  LogOut,
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Image from 'next/image'
@@ -93,9 +94,15 @@ const menuItems = [
 export function Sidebar() {
   const pathname = usePathname()
 
+  const handleLogout = () => {
+    // TODO: integrate auth logout logic here
+    console.log('Logout clicked')
+  }
+
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
-      <div className="flex h-16 items-center px-6 ">
+      {/* Logo */}
+      <div className="flex h-16 items-center px-6">
         <Link href="/">
           <div className="flex items-center gap-3 pt-4">
             <div className="relative h-12 w-12 overflow-hidden rounded-full bg-[#1a1a1a] flex-shrink-0">
@@ -104,14 +111,17 @@ export function Sidebar() {
                 alt="Logo"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
-            <span className="text-[15px] font-semibold tracking-widest text-white whitespace-nowrap">
+            <span className="text-[15px] font-semibold tracking-widest whitespace-nowrap">
               CLINICALLY MANIC
             </span>
           </div>
         </Link>
       </div>
+
+      {/* Menu */}
       <ScrollArea className="flex-1 px-4 py-4 mt-5">
         {menuItems.map((section, idx) => (
           <div key={idx} className="mb-6">
@@ -124,7 +134,7 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-base  transition-colors',
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-base transition-colors',
                     pathname === item.href
                       ? 'bg-primary text-primary-foreground'
                       : 'text-foreground hover:bg-accent hover:text-accent-foreground',
@@ -138,6 +148,17 @@ export function Sidebar() {
           </div>
         ))}
       </ScrollArea>
+
+      {/* Logout */}
+      <div className="border-t border-border p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-base text-destructive transition-colors hover:bg-destructive/10"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </button>
+      </div>
     </div>
   )
 }
