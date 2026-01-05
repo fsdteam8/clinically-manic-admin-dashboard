@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { Toaster } from 'sonner'
+import Providers from './providers'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -48,8 +50,20 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen bg-background`}
       >
-        {children}
+        <Providers>{children}</Providers>
         <Analytics />
+        <Toaster
+          position="top-right"
+          richColors
+          theme="light"
+          toastOptions={{
+            style: {
+              background: '#ffffff',
+              color: '#111827',
+              border: '1px solid #e5e7eb',
+            },
+          }}
+        />
       </body>
     </html>
   )
