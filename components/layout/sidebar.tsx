@@ -17,6 +17,18 @@ import {
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Image from 'next/image'
+import { signOut } from 'next-auth/react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 const menuItems = [
   {
@@ -94,9 +106,10 @@ const menuItems = [
 export function Sidebar() {
   const pathname = usePathname()
 
-  const handleLogout = () => {
-    // TODO: integrate auth logout logic here
-    console.log('Logout clicked')
+  const handleLogout = async () => {
+    await signOut({
+      callbackUrl: '/signin',
+    })
   }
 
   return (
@@ -114,7 +127,7 @@ export function Sidebar() {
                 priority
               />
             </div>
-            <span className="text-[15px] font-semibold tracking-widest whitespace-nowrap">
+            <span className="text-[15px] font-semibold tracking-widest whitespace-nowrap text-white">
               CLINICALLY MANIC
             </span>
           </div>
@@ -149,15 +162,40 @@ export function Sidebar() {
         ))}
       </ScrollArea>
 
-      {/* Logout */}
+      {/* Logout with Modal */}
       <div className="border-t border-border p-4">
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-base text-destructive transition-colors hover:bg-destructive/10"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-base text-white transition-colors hover:bg-white/10">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent className="bg-[#0f0f0f] border border-white/10 text-white">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white">
+                Are you sure?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-white/70">
+                You will be logged out from the admin dashboard.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-transparent text-white border hover:text-white border-white/20 hover:bg-white/10">
+                Cancel
+              </AlertDialogCancel>
+
+              <AlertDialogAction
+                onClick={handleLogout}
+                className="bg-white text-black hover:bg-white/90"
+              >
+                Logout
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )

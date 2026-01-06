@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import {
   useGetUserProfile,
@@ -170,6 +170,12 @@ export default function SettingsPage() {
   return (
     <div className="">
       <Card className="border-none shadow-none">
+        <CardTitle className=" text-white pl-5 space-y-2">
+          <h2 className="text-3xl font-semibold">Profile Settings</h2>
+          <p className="text-sm text-white font-medium">
+            Manage your profile settings.
+          </p>
+        </CardTitle>
         <CardContent className="">
           <div className="flex border-b mb-6">
             <button
@@ -177,7 +183,7 @@ export default function SettingsPage() {
               className={`px-2 py-3 font-medium transition-colors cursor-pointer ${
                 activeTab === 'profile'
                   ? 'text-white border-b-2 border-slate-100'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-600 hover:text-white'
               }`}
             >
               Personal Information
@@ -187,7 +193,7 @@ export default function SettingsPage() {
               className={`px-2 py-3 font-medium transition-colors cursor-pointer ${
                 activeTab === 'password'
                   ? 'text-white border-b-2 border-slate-100'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-600 hover:text-white'
               }`}
             >
               Change Password

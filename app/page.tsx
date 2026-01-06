@@ -1,8 +1,14 @@
+'use client'
 import { redirect } from 'next/navigation'
-import React from 'react'
+import { getServerSession } from 'next-auth'
+import { useSession } from 'next-auth/react'
 
-const page = () => {
-  redirect('/admin-dashboard')
+export default function Page() {
+  const { data: session } = useSession()
+
+  if (session?.user?.accessToken) {
+    redirect('/admin-dashboard')
+  }
+
+  redirect('/signin')
 }
-
-export default page
