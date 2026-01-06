@@ -99,6 +99,16 @@
   background: linear-gradient(180deg, #1f1f1f 0%, #4b4b4b 100%);
 }
 
+/* Set min height for editor */
+.quill-editor .ql-container {
+  min-height: 240px;   /* total editor height including toolbar */
+}
+
+.quill-editor .ql-editor {
+  min-height: 200px;   /* editable content area */
+  overflow-y: auto;    /* scroll if content is long */
+}
+
 /* Firefox Support */
 .custom-scrollbar {
   scrollbar-width: thin;
