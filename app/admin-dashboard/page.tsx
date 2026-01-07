@@ -1,9 +1,9 @@
 'use client'
 
-import DashboardPage from '@/components/overview/dashboardPage'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import DashboardPage from './_components/dashboard-overview'
 
 const OverviewPage = () => {
   const { data: session, status } = useSession()
