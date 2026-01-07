@@ -1,0 +1,242 @@
+'use client'
+
+import { useState } from "react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { X, Plus } from "lucide-react"
+import { toast } from "sonner"
+import { useMutation } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
+
+export default function AddSubscriptionModal({
+    open,
+    onClose,
+}: {
+    open: boolean
+    onClose: () => void
+}) {
+    const [name, setName] = useState("")
+    const [type, setType] = useState("yearly")
+    const [price, setPrice] = useState("")
+    const [status, setStatus] = useState("active")
+    const [featureInput, setFeatureInput] = useState("")
+    const [features, setFeatures] = useState<string[]>([])
+    const { data: session } = useSession()
+    const token = (session?.user as { accessToken?: string })?.accessToken
+
+    const createPlan = useMutation({
+        mutationFn: async (body: { name: string, type: string, price: number, status: string, features: string[] }) => {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/subscription`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(body),
+                }
+            );
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || "Failed to create plan");
+            }
+
+            return res.json();
+        },
+        onSuccess: () => {
+            toast.success("Plan created successfully");
+            onClose();
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to create plan");
+        },
+    });
+
+
+    const removeFeature = (feature: string) => {
+        setFeatures(features.filter((f) => f !== feature))
+    }
+
+    const handleSubmit = () => {
+        if (!name || !price || features.length === 0) {
+            toast.error("Please fill in all required fields")
+            return
+        }
+
+        createPlan.mutate({
+            name,
+            type,
+            price: Number(price),
+            status,
+            features,
+        })
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-xl rounded-2xl">
+                <DialogHeader className="border-b pb-3">
+                    <DialogTitle className="text-lg font-semibold">
+                        Add Subscription Plan
+                    </DialogTitle>
+                </DialogHeader>
+
+                {/* BODY */}
+                <div className="space-y-6 pt-4">
+                    {/* Name */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Plan Name</Label>
+                        <Input
+                            placeholder="e.g. Premium Plan"
+                            value={name}
+                            className=" text-black placeholder:text-gray-500"
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Type & Price */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium">Billing Type</Label>
+                            <Select value={type} onValueChange={setType}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="yearly">Yearly</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium">Price</Label>
+                            <Input
+                                type="number"
+                                placeholder="999"
+                                value={price}
+                                className="text-black"
+                                onChange={(e) => setPrice(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Status</Label>
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Features</Label>
+
+                        <div className="rounded-lg border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {features.map((feature, index) => (
+                                    <span
+                                        key={`${feature}-${index}`}
+                                        className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
+                                    >
+                                        {feature}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                removeFeature(feature)
+                                            }}
+                                            className="opacity-60 hover:opacity-100"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </span>
+                                ))}
+
+                                {/* Input */}
+                                <input
+                                    value={featureInput}
+                                    onChange={(e) => setFeatureInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === ",") {
+                                            e.preventDefault()
+                                            if (
+                                                featureInput.trim() &&
+                                                !features.includes(featureInput.trim())
+                                            ) {
+                                                setFeatures([...features, featureInput.trim()])
+                                            }
+                                            setFeatureInput("")
+                                        }
+
+                                        // Backspace removes last tag
+                                        if (e.key === "Backspace" && !featureInput && features.length) {
+                                            setFeatures(features.slice(0, -1))
+                                        }
+                                    }}
+                                    placeholder="Add feature"
+                                    className="flex-1 min-w-[140px] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                />
+
+                                {/* Plus icon */}
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (
+                                            featureInput.trim() &&
+                                            !features.includes(featureInput.trim())
+                                        ) {
+                                            setFeatures([...features, featureInput.trim()])
+                                            setFeatureInput("")
+                                        }
+                                    }}
+                                    className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground">
+                            Press Enter, comma, Backspace or click + to manage features
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* FOOTER */}
+                <DialogFooter className="mt-6 border-t pt-4">
+                    <Button variant="ghost" onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSubmit}>Create Plan</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}

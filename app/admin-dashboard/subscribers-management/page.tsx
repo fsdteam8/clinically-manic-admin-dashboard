@@ -1,28 +1,3 @@
-// "use client"
-
-// import { PageHeader } from "@/components/reusable/page-header"
-
-// import { Send } from "lucide-react"
-// import Subscribtion from "./subscribtion"
-
-
-// export default function SubscribersManagementPage() {
-//   return (
-//     <div className="space-y-6">
-//       <PageHeader
-//         title="Subscribers Management"
-//         description="Manage newsletter subscribers and send broadcasts"
-//         action={{
-//           label: "Broadcast Email",
-//           onClick: () => console.log("Broadcast email"),
-//           icon: <Send className="mr-2 h-4 w-4" />,
-//         }}
-//       />
-//       <Subscribtion />
-//     </div>
-//   )
-// }
-
 'use client'
 
 import { PageHeader } from '@/components/reusable/page-header'
