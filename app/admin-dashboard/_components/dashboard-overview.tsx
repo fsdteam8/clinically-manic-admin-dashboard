@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query'
 import { StatCard } from '@/components/reusable/stat-card'
 import { Users, DollarSign, ShoppingBag, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { dummyContacts } from '@/lib/data/dummy-data'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -26,9 +25,11 @@ import { dashboardApi } from '@/lib/api/dashboardApi'
 export default function DashboardPage() {
   const { data: session } = useSession()
   const token = session?.user?.accessToken || ''
-  const [selectedYear] = useState(new Date().getFullYear())
+  const currentYear = new Date().getFullYear()
+  const [selectedYear, setSelectedYear] = useState(currentYear)
 
-  const latestContacts = dummyContacts.slice(0, 4)
+  // Generate year options (current year and past 4 years)
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
   // Fetch Dashboard Overview
   const { data: overview, isLoading: overviewLoading } = useQuery({
@@ -51,6 +52,13 @@ export default function DashboardPage() {
     enabled: !!token,
   })
 
+  // Fetch Latest Contacts
+  const { data: latestContacts, isLoading: contactsLoading } = useQuery({
+    queryKey: ['latest-contacts'],
+    queryFn: () => dashboardApi.getLatestContacts(token),
+    enabled: !!token,
+  })
+
   // Format currency
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -64,6 +72,15 @@ export default function DashboardPage() {
   // Format number with commas
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat('en-US').format(value)
+  }
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
   }
 
   return (
@@ -125,8 +142,19 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Revenue Overview Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle>Revenue Overview ({selectedYear})</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle>Revenue Overview</CardTitle>
+            <select
+              value={selectedYear}
+              onChange={e => setSelectedYear(Number(e.target.value))}
+              className="px-3 py-1.5 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {yearOptions.map(year => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
           </CardHeader>
           <CardContent>
             {revenueLoading ? (
@@ -178,7 +206,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* User Growth Chart */}
-        <Card>
+        <Card className="pt-12">
           <CardHeader>
             <CardTitle>User Growth</CardTitle>
           </CardHeader>
@@ -239,30 +267,43 @@ export default function DashboardPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {latestContacts.map(contact => (
-              <div
-                key={contact.id}
-                className="flex items-start justify-between border-b border-border pb-4 last:border-0"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{contact.name}</p>
-                    <Badge
-                      variant={
-                        contact.status === 'new' ? 'default' : 'secondary'
-                      }
-                    >
-                      {contact.status}
-                    </Badge>
+          {contactsLoading ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : !latestContacts || latestContacts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No contact messages yet
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {latestContacts.map(contact => (
+                <div
+                  key={contact._id}
+                  className="flex items-start justify-between border-b border-border pb-4 last:border-0"
+                >
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{contact.name}</p>
+                      <Badge variant={contact.isRead ? 'secondary' : 'default'}>
+                        {contact.isRead ? 'Read' : 'New'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {contact.email}
+                    </p>
+                    <p className="text-base font-medium">{contact.subject}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {contact.message}
+                    </p>
                   </div>
-                  <p className="text-sm text-foreground">{contact.email}</p>
-                  <p className="text-base font-medium">{contact.subject}</p>
+                  <p className="text-sm text-muted-foreground whitespace-nowrap ml-4">
+                    {formatDate(contact.createdAt)}
+                  </p>
                 </div>
-                <p className="text-sm text-foreground">{contact.createdAt}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

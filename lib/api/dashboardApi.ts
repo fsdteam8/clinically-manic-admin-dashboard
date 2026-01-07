@@ -21,11 +21,29 @@ export interface UserGrowthData {
   users: number
 }
 
+export interface Contact {
+  _id: string
+  name: string
+  email: string
+  phoneNumber: string
+  occupation: string
+  subject: string
+  message: string
+  isRead: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 interface ApiResponse<T> {
   statusCode: number
   success: boolean
   message: string
   data: T
+  meta?: {
+    page: number
+    limit: number
+    total: number
+  }
 }
 
 const getOverview = async (token: string): Promise<DashboardOverview> => {
@@ -85,8 +103,26 @@ const getUserGrowth = async (token: string): Promise<UserGrowthData[]> => {
   return result.data
 }
 
+const getLatestContacts = async (token: string): Promise<Contact[]> => {
+  const response = await fetch(`${API_URL}/contact?page=1&limit=4`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch latest contacts')
+  }
+
+  const result: ApiResponse<Contact[]> = await response.json()
+  return result.data
+}
+
 export const dashboardApi = {
   getOverview,
   getRevenueOverview,
   getUserGrowth,
+  getLatestContacts,
 }
