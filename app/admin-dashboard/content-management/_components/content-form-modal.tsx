@@ -134,14 +134,7 @@ export const ContentFormModal = ({
     }
   }
 
-  const categories: Category[] = [
-    'playLists',
-    'art',
-    'news',
-    'fashion',
-    'sports',
-    'music',
-  ]
+  const categories: Category[] = ['art', 'news', 'fashion', 'sports', 'music']
   const tabs: { id: ContentType; label: string }[] = [
     { id: 'article', label: 'Article' },
     { id: 'Youtube-videos', label: 'YouTube Video' },

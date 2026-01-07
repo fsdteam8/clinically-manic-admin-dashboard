@@ -115,7 +115,6 @@ export default function ContentManagementPage() {
 
   const categories: { value: string; label: string }[] = [
     { value: 'all', label: 'All Categories' },
-    { value: 'playLists', label: 'Playlists' },
     { value: 'art', label: 'Art' },
     { value: 'news', label: 'News' },
     { value: 'fashion', label: 'Fashion' },
