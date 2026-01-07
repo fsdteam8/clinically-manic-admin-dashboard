@@ -3,7 +3,7 @@
 import { PageHeader } from '@/components/reusable/page-header'
 import { Send } from 'lucide-react'
 import { useState } from 'react'
-import Subscribtion from './subscribtion'
+import Subscribtion from './subscriber'
 import BroadcastEmailModal from '@/components/broadcast-email-modal'
 
 export default function SubscribersManagementPage() {
