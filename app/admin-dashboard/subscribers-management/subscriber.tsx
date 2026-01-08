@@ -4,18 +4,7 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
 
-/* -----------------------------
-   API Data Type
------------------------------ */
 type Newsletter = {
     _id: string
     email: string
@@ -30,7 +19,7 @@ export default function Subscription() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['newsletter', page],
-        enabled: !!token, // wait for token
+        enabled: !!token,
         queryFn: async () => {
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/newsletter?page=${page}&limit=${limit}`,
@@ -39,7 +28,7 @@ export default function Subscription() {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
-                },
+                }
             )
 
             if (!res.ok) {
@@ -54,45 +43,71 @@ export default function Subscription() {
     const totalItems = data?.meta?.total ?? 0
 
     if (isLoading) {
-        return <div className="p-4">Loading...</div>
+        return (
+            <div className="rounded-xl border p-6 text-center text-muted-foreground">
+                Loading subscribers...
+            </div>
+        )
     }
 
     if (isError) {
-        return <div className="p-4 text-red-500">Failed to load data</div>
+        return (
+            <div className="rounded-xl border p-6 text-center text-destructive">
+                Failed to load data
+            </div>
+        )
     }
 
     return (
-        <div className="rounded-lg border p-4 space-y-3">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>#</TableHead>
-                        <TableHead>Id</TableHead>
-                        <TableHead>Email</TableHead>
-                    </TableRow>
-                </TableHeader>
+        <div className="space-y-3">
+            {/* TABLE */}
+            <div className="overflow-x-auto rounded-xl border border-gray-700">
+                <table className="w-full">
+                    <thead className="bg-gray-800 border-b border-gray-700">
+                        <tr>
+                            <th className="px-6 py-4 text-left text-lg font-semibold text-white">
+                                #
+                            </th>
+                            <th className="px-6 py-4 text-left text-lg font-semibold text-white">
+                                Subscriber ID
+                            </th>
+                            <th className="px-6 py-4 text-left text-lg font-semibold text-white">
+                                Email
+                            </th>
+                        </tr>
+                    </thead>
 
-                <TableBody>
-                    {newsletters.length ? (
-                        newsletters.map((item, index) => (
-                            <TableRow key={item._id}>
-                                <TableCell>{index + 1}</TableCell>
-                                <TableCell>{item?._id}</TableCell>
-                                <TableCell>{item.email}</TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={2} className="text-center">
-                                No newsletters found
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                    <tbody>
+                        {newsletters.length ? (
+                            newsletters.map((item, index) => (
+                                <tr
+                                    key={item._id}
+                                    className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <td className="px-6 py-4 text-gray-400">{index + 1}</td>
+                                    <td className="px-6 py-4 text-gray-300 font-mono text-sm">
+                                        {item._id}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-300">{item.email}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td
+                                    colSpan={3}
+                                    className="px-6 py-6 text-center text-gray-400"
+                                >
+                                    No newsletters found
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
-            <p className="text-sm text-muted-foreground">
-                Total subscribers: {totalItems}
+            {/* FOOTER INFO */}
+            <p className="text-sm text-gray-400">
+                Total subscribers: <span className="font-medium">{totalItems}</span>
             </p>
         </div>
     )

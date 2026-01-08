@@ -1,24 +1,6 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import DashboardPage from './_components/dashboard-overview'
 
 const OverviewPage = () => {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!session?.user?.accessToken) {
-      router.replace('/signin')
-    }
-  }, [status, session, router])
-
-  if (!session?.user?.accessToken) {
-    return null
-  }
-
   return <DashboardPage />
 }
 
