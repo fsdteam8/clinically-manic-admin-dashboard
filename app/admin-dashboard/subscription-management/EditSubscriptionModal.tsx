@@ -266,7 +266,7 @@ import { toast } from "sonner"
 /* ---------------- Types ---------------- */
 type Subscription = {
     _id: string
-    name: string
+    name: "exclusive" | "basic"
     type: "monthly" | "yearly"
     price: number
     status: "active" | "inactive"
@@ -289,7 +289,7 @@ export default function EditSubscriptionModal({
     token,
     onUpdated,
 }: Props) {
-    const [name, setName] = useState("")
+    const [name, setName] = useState<"exclusive" | "basic">("basic")
     const [type, setType] = useState<"monthly" | "yearly">("yearly")
     const [price, setPrice] = useState("")
     const [status, setStatus] = useState<"active" | "inactive">("active")
@@ -367,13 +367,20 @@ export default function EditSubscriptionModal({
                 <div className="space-y-6 pt-4">
                     {/* Name */}
                     <div className="space-y-2">
-                        <Label className="text-gray-200 text-sm font-medium">Plan Name</Label>
-                        <Input
-                            placeholder="e.g. Premium Plan"
-                            value={name}
-                            className="bg-gray-800 text-white border border-gray-700 placeholder-gray-500"
-                            onChange={(e) => setName(e.target.value)}
-                        />
+                        <Label className="text-gray-200 text-sm font-medium">
+                            Plan Name
+                        </Label>
+
+                        <Select value={name} onValueChange={(v) => setName(v as "exclusive" | "basic")}>
+                            <SelectTrigger className="w-full bg-gray-800 text-white border border-gray-700">
+                                <SelectValue placeholder="Select plan name" />
+                            </SelectTrigger>
+
+                            <SelectContent className="bg-gray-800 text-white border border-gray-700">
+                                <SelectItem value="exclusive">Exclusive</SelectItem>
+                                <SelectItem value="basic">Basic</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {/* Type & Price */}
