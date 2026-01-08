@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useState } from 'react'
 import EditEventModal from './EventPlansEdite'
+import Image from 'next/image'
 
 export default function EventsTable() {
   const { data: session } = useSession()
@@ -88,6 +89,9 @@ export default function EventsTable() {
           <thead className="bg-gray-800 border-b border-gray-700">
             <tr>
               <th className="px-6 py-4 text-left text-lg font-semibold text-white">
+                Image
+              </th>
+              <th className="px-6 py-4 text-left text-lg font-semibold text-white">
                 Title
               </th>
               <th className="px-6 py-4 text-left text-lg font-semibold text-white">
@@ -125,6 +129,15 @@ export default function EventsTable() {
                 key={event._id}
                 className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors"
               >
+                <td className="px-6 py-4 text-gray-300 font-medium capitalize">
+                 <Image
+                    src={event.thumbnail || '/placeholder.svg'}
+                    alt={event.title}
+                    width={50}
+                    height={50}
+                    className="rounded-md"
+                  />
+                </td>
                 <td className="px-6 py-4 text-gray-300 font-medium capitalize">
                   {event.title}
                 </td>
