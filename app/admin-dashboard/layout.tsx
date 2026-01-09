@@ -8,7 +8,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="dark flex h-screen overflow-hidden bg-background">
+    <div
+      className="dark flex h-screen overflow-hidden bg-background"
+      suppressContentEditableWarning
+    >
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />

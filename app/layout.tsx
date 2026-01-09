@@ -48,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        suppressContentEditableWarning
         className={`${inter.variable} font-sans antialiased min-h-screen bg-background`}
       >
         <Providers>{children}</Providers>

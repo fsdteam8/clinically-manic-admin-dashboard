@@ -1,9 +1,9 @@
-import React from 'react'
+import Redirect from '@/components/redirect'
 
-const page = () => {
+export default function Home() {
   return (
-    <div>page</div>
+    <div>
+      <Redirect />
+    </div>
   )
 }
-
-export default page

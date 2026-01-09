@@ -164,28 +164,42 @@ export default function DashboardPage() {
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={revenueData || []}>
+                  <defs>
+                    <linearGradient
+                      id="colorRevenue"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                      <stop
+                        offset="95%"
+                        stopColor="#3b82f6"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-muted-foreground"
-                    opacity={0.2}
+                    stroke="#374151"
+                    opacity={0.3}
                   />
                   <XAxis
                     dataKey="month"
-                    className="text-xs"
-                    tick={{ fill: 'currentColor' }}
-                    stroke="currentColor"
+                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                    stroke="#4b5563"
                   />
                   <YAxis
-                    className="text-xs"
-                    tick={{ fill: 'currentColor' }}
-                    stroke="currentColor"
+                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                    stroke="#4b5563"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
                       borderRadius: '8px',
-                      color: 'hsl(var(--popover-foreground))',
+                      color: '#f9fafb',
                     }}
                     formatter={(value: any) => [
                       formatCurrency(value),
@@ -195,9 +209,9 @@ export default function DashboardPage() {
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    stroke="hsl(var(--primary))"
-                    fill="hsl(var(--primary))"
-                    fillOpacity={0.6}
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fill="url(#colorRevenue)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -206,7 +220,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* User Growth Chart */}
-        <Card className="pt-12">
+        <Card>
           <CardHeader>
             <CardTitle>User Growth</CardTitle>
           </CardHeader>
@@ -220,26 +234,24 @@ export default function DashboardPage() {
                 <LineChart data={userGrowthData || []}>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-muted-foreground"
-                    opacity={0.2}
+                    stroke="#374151"
+                    opacity={0.3}
                   />
                   <XAxis
                     dataKey="month"
-                    className="text-xs"
-                    tick={{ fill: 'currentColor' }}
-                    stroke="currentColor"
+                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                    stroke="#4b5563"
                   />
                   <YAxis
-                    className="text-xs"
-                    tick={{ fill: 'currentColor' }}
-                    stroke="currentColor"
+                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                    stroke="#4b5563"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
                       borderRadius: '8px',
-                      color: 'hsl(var(--popover-foreground))',
+                      color: '#f9fafb',
                     }}
                     formatter={(value: any) => [value, 'Users']}
                   />
