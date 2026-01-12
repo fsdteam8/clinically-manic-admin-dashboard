@@ -92,14 +92,14 @@ export function ProfileForm({
         </div>
 
         <div>
-          <Label htmlFor="phoneNumber" className="text-white">
+          <Label htmlFor="role" className="text-white">
             Role
           </Label>
           <Input
-            id="phoneNumber"
+            id="role"
             value={phoneNumber}
             onChange={e => setPhoneNumber(e.target.value)}
-            placeholder="+1 (555) 000-0000"
+            placeholder="Admin"
             className="mt-1 bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-500"
           />
         </div>

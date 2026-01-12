@@ -13,7 +13,9 @@ import {
   Users,
   Mail,
   Settings,
+  ShoppingBagIcon,
   LogOut,
+  ReceiptText,
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import Image from 'next/image'
@@ -48,6 +50,11 @@ const menuItems = [
         title: 'Shop Management',
         href: '/admin-dashboard/shop-management',
         icon: ShoppingBag,
+      },
+      {
+        title: 'Orders Management',
+        href: '/admin-dashboard/orders-management',
+        icon: ReceiptText,
       },
       {
         title: 'Banner Management',
