@@ -1,7 +1,3 @@
-// ============================================
-// File: lib/types/banner.ts
-// ============================================
-
 export interface Banner {
   _id: string
   title: string
