@@ -85,7 +85,7 @@ export const ShopViewModal = ({
               <h4 className="text-base text-gray-400 mb-1">Type</h4>
               <span
                 className={`inline-block px-3 py-1 text-sm rounded-full ${
-                  shop.type === 'Exclusive'
+                  (shop.type as string) === 'Exclusive'
                     ? 'bg-purple-600/20 text-purple-400'
                     : 'bg-blue-600/20 text-blue-400'
                 }`}
@@ -103,7 +103,7 @@ export const ShopViewModal = ({
           <div>
             <h4 className="text-base text-gray-400 mb-1">Available Sizes</h4>
             <div className="flex gap-2">
-              {shop.size.map(s => (
+              {shop.size?.map(s => (
                 <span
                   key={s}
                   className="px-3 py-1 bg-gray-800 text-white rounded text-sm"
@@ -139,13 +139,13 @@ export const ShopViewModal = ({
             <div>
               <h4 className="text-base text-gray-400 mb-1">Created At</h4>
               <p className="text-base text-white">
-                {new Date(shop.createdAt).toLocaleDateString()}
+                {new Date(shop.createdAt as any).toLocaleDateString()}
               </p>
             </div>
             <div>
               <h4 className="text-base text-gray-400 mb-1">Updated At</h4>
               <p className="text-base text-white">
-                {new Date(shop.updatedAt).toLocaleDateString()}
+                {new Date(shop.updatedAt as any).toLocaleDateString()}
               </p>
             </div>
           </div>

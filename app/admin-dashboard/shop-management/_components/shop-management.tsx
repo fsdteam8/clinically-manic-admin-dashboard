@@ -1,3 +1,6 @@
+// ============================================
+// File 2: app/shop-management/page.tsx (FIXED - ShopViewModal)
+// ============================================
 'use client'
 
 import { useState } from 'react'
@@ -13,12 +16,13 @@ import { shopApi } from '@/lib/api/shopApi'
 import { Shop } from '@/types/shop'
 import { TableSkeleton } from '@/components/common/tableSkeleton'
 import { NoDataFound } from '@/components/common/no-data-found'
+
+import { Button } from '@/components/ui/button'
 import { ShopTable } from './shop-table'
 import { Pagination } from '@/components/common/table-pagination'
 import { ShopFormModal } from './shop-form-modal'
 import { DeleteModal } from '@/components/common/delete-modal'
 import { ShopViewModal } from './shop-view-modal'
-import { Button } from '@/components/ui/button'
 
 export default function ShopManagementPage() {
   const queryClient = useQueryClient()
@@ -29,6 +33,7 @@ export default function ShopManagementPage() {
   const [limit, setLimit] = useState(10)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
+  const [filterCategory, setFilterCategory] = useState('all')
 
   const [showFormModal, setShowFormModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -38,9 +43,6 @@ export default function ShopManagementPage() {
   const [viewingShop, setViewingShop] = useState<Shop | null>(null)
   const [deletingShop, setDeletingShop] = useState<Shop | null>(null)
 
-  /* =======================
-     Fetch Shops
-  ======================= */
   const { data, isLoading } = useQuery({
     queryKey: ['shops', page, limit],
     queryFn: () => shopApi.getAll(page, limit),
@@ -50,9 +52,6 @@ export default function ShopManagementPage() {
   const shops: Shop[] = data?.data || []
   const meta = data?.meta
 
-  /* =======================
-     Create / Update
-  ======================= */
   const upsertMutation = useMutation({
     mutationFn: (formData: FormData) => {
       if (!token) throw new Error('Unauthorized')
@@ -67,9 +66,6 @@ export default function ShopManagementPage() {
     },
   })
 
-  /* =======================
-     Delete
-  ======================= */
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
       if (!token) throw new Error('Unauthorized')
@@ -82,11 +78,19 @@ export default function ShopManagementPage() {
     },
   })
 
-  const filteredShops = shops.filter(
-    shop =>
-      shop.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (filterType === 'all' || shop.type === filterType),
-  )
+  const filteredShops = shops.filter(shop => {
+    const matchesSearch = shop.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+    const matchesType =
+      filterType === 'all' ||
+      shop.type.toLowerCase() === filterType.toLowerCase()
+    const matchesCategory =
+      filterCategory === 'all' ||
+      shop.categories.includes(filterCategory as any)
+
+    return matchesSearch && matchesType && matchesCategory
+  })
 
   return (
     <div className="min-h-screen text-white">
@@ -108,7 +112,44 @@ export default function ShopManagementPage() {
         </Button>
       </div>
 
-      {/* Content */}
+      <div className="mb-6 flex flex-wrap gap-4">
+        <div className="relative flex-1 min-w-[300px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <select
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+          className="px-4 py-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All Types</option>
+          <option value="exclusive">Exclusive</option>
+          <option value="clothing">Clothing</option>
+          <option value="accessories">Accessories</option>
+          <option value="shoes">Shoes</option>
+        </select>
+
+        <select
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          className="px-4 py-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All Categories</option>
+          <option value="mens">Mens</option>
+          <option value="womens">Womens</option>
+          <option value="childrens">Childrens</option>
+          <option value="accessories">Accessories</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
       <div className="bg-gray-800/50 rounded-lg border border-gray-700">
         {isLoading ? (
           <TableSkeleton />
@@ -163,7 +204,6 @@ export default function ShopManagementPage() {
           deletingShop && deleteMutation.mutate(deletingShop._id)
         }
         title={deletingShop?.title || ''}
-        // loading={deleteMutation.isPending}
       />
 
       <ShopViewModal

@@ -1,7 +1,6 @@
 // ============================================
-// File: app/shop-management/_components/ShopTable.tsx
+// File 4: app/shop-management/_components/shop-table.tsx
 // ============================================
-
 import { Pencil, Trash2, Eye } from 'lucide-react'
 import type { Shop } from '@/types/shop'
 import Image from 'next/image'
@@ -47,6 +46,9 @@ export const ShopTable = ({
               Type
             </th>
             <th className="text-left px-6 py-4 text-lg font-semibold text-white">
+              Categories
+            </th>
+            <th className="text-left px-6 py-4 text-lg font-semibold text-white">
               Status
             </th>
             <th className="text-left px-6 py-4 text-lg font-semibold text-white">
@@ -72,20 +74,38 @@ export const ShopTable = ({
               <td className="px-6 py-4 text-base text-gray-300">
                 {shop.title}
               </td>
-              <td className="px-6 py-4 text-base text-gray-300">{shop.name}</td>
+              <td className="px-6 py-4 text-base text-gray-300">
+                {shop.name || '-'}
+              </td>
               <td className="px-6 py-4 text-base text-gray-300 font-medium">
                 {formatPrice(shop.price)}
               </td>
               <td className="px-6 py-4">
                 <span
                   className={`px-3 py-1 text-sm rounded-full ${
-                    shop.type === 'Exclusive'
+                    shop.type.toLowerCase() === 'exclusive'
                       ? 'bg-purple-600/20 text-purple-400'
-                      : 'bg-blue-600/20 text-blue-400'
+                      : shop.type.toLowerCase() === 'clothing'
+                      ? 'bg-blue-600/20 text-blue-400'
+                      : shop.type.toLowerCase() === 'shoes'
+                      ? 'bg-green-600/20 text-green-400'
+                      : 'bg-gray-600/20 text-gray-400'
                   }`}
                 >
                   {shop.type}
                 </span>
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex flex-wrap gap-1">
+                  {shop.categories.map(cat => (
+                    <span
+                      key={cat}
+                      className="px-2 py-1 text-xs rounded bg-gray-700 text-gray-300"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
               </td>
               <td className="px-6 py-4">
                 <span

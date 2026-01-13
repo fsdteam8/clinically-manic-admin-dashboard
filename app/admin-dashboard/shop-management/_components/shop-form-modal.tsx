@@ -1,7 +1,6 @@
 // ============================================
-// File: app/shop-management/_components/ShopFormModal.tsx
+// File 3: app/shop-management/_components/shop-form-modal.tsx (FIXED)
 // ============================================
-
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import type { Shop } from '@/types/shop'
@@ -28,34 +27,37 @@ export const ShopFormModal = ({
     title: '',
     description: '',
     price: '',
-    type: 'Basic' as 'Basic' | 'Exclusive',
+    type: 'exclusive' as
+      | 'exclusive'
+      | 'clothing'
+      | 'shoes'
+      | 'accessories'
+      | 'other',
     details: '',
+    status: 'active' as 'active' | 'inactive',
     images: [] as File[],
   })
 
-  const [sizes, setSizes] = useState<string[]>(['S', 'M', 'L'])
+  const [sizes, setSizes] = useState<string[]>([])
   const [sizeInput, setSizeInput] = useState('')
+  const [categories, setCategories] = useState<string[]>([])
   const [previewImages, setPreviewImages] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
 
   useEffect(() => {
     if (shop) {
       setFormData({
-        name: shop.name,
+        name: shop.name || '',
         title: shop.title,
         description: shop.description,
         price: shop.price.toString(),
         type: shop.type,
-        details: shop.details,
+        details: shop.details || '',
+        status: shop.status,
         images: [],
       })
-      // Parse size properly if it's a string
-      const parsedSizes = Array.isArray(shop.size)
-        ? shop.size
-        : typeof shop.size === 'string'
-        ? JSON.parse(shop.size)
-        : ['S', 'M', 'L']
-      setSizes(parsedSizes)
+      setSizes(shop.size || [])
+      setCategories(shop.categories)
       setExistingImages(shop.images)
       setPreviewImages([])
     } else {
@@ -64,11 +66,13 @@ export const ShopFormModal = ({
         title: '',
         description: '',
         price: '',
-        type: 'Basic',
+        type: 'exclusive',
         details: '',
+        status: 'active',
         images: [],
       })
-      setSizes(['S', 'M', 'L'])
+      setSizes([])
+      setCategories([])
       setExistingImages([])
       setPreviewImages([])
     }
@@ -79,22 +83,38 @@ export const ShopFormModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (categories.length === 0) {
+      alert('Please select at least one category')
+      return
+    }
+
     const data = new FormData()
 
-    data.append('name', formData.name)
+    if (formData.name.trim()) {
+      data.append('name', formData.name)
+    }
+
     data.append('title', formData.title)
     data.append('description', formData.description)
     data.append('price', formData.price)
     data.append('type', formData.type)
-    data.append('details', formData.details)
-    data.append('size', JSON.stringify(sizes))
+    data.append('status', formData.status)
 
-    // Append existing images that weren't removed
+    if (formData.details.trim()) {
+      data.append('details', formData.details)
+    }
+
+    if (sizes.length > 0) {
+      data.append('size', JSON.stringify(sizes))
+    }
+
+    data.append('categories', JSON.stringify(categories))
+
     if (shop && existingImages.length > 0) {
       data.append('existingImages', JSON.stringify(existingImages))
     }
 
-    // Append new images
     formData.images.forEach(img => {
       data.append('images', img)
     })
@@ -121,8 +141,8 @@ export const ShopFormModal = ({
   }
 
   const addSize = () => {
-    if (sizeInput.trim() && !sizes.includes(sizeInput.trim())) {
-      setSizes([...sizes, sizeInput.trim()])
+    if (sizeInput.trim() && !sizes.includes(sizeInput.trim().toUpperCase())) {
+      setSizes([...sizes, sizeInput.trim().toUpperCase()])
       setSizeInput('')
     }
   }
@@ -131,9 +151,32 @@ export const ShopFormModal = ({
     setSizes(sizes.filter(s => s !== sizeToRemove))
   }
 
+  const toggleCategory = (category: string) => {
+    if (categories.includes(category)) {
+      setCategories(categories.filter(c => c !== category))
+    } else {
+      setCategories([...categories, category])
+    }
+  }
+
+  const categoryOptions = [
+    'mens',
+    'womens',
+    'childrens',
+    'accessories',
+    'other',
+  ]
+  const typeOptions: (
+    | 'exclusive'
+    | 'clothing'
+    | 'shoes'
+    | 'accessories'
+    | 'other'
+  )[] = ['exclusive', 'clothing', 'shoes', 'accessories', 'other']
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 overflow-y-auto p-4">
-      <div className="bg-gray-900 rounded-lg p-6 max-w-3xl w-full my-8 border border-gray-800 max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-900 rounded-lg p-6 max-w-4xl w-full my-8 border border-gray-800 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold text-white">
             {shop ? 'Edit Product' : 'Add Product'}
@@ -151,7 +194,7 @@ export const ShopFormModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-base text-gray-300 mb-2 font-medium">
-                Name *
+                Name <span className="text-gray-500">(optional)</span>
               </label>
               <input
                 type="text"
@@ -160,9 +203,8 @@ export const ShopFormModal = ({
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
                 disabled={loading}
-                placeholder="e.g., Home Essentials"
+                placeholder="e.g., Urban Threads"
               />
             </div>
 
@@ -179,7 +221,7 @@ export const ShopFormModal = ({
                 className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 disabled={loading}
-                placeholder="e.g., Modern Table Lamp"
+                placeholder="e.g., Classic Cotton T-Shirt"
               />
             </div>
           </div>
@@ -196,11 +238,11 @@ export const ShopFormModal = ({
               className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={loading}
-              placeholder="Product description"
+              placeholder="Detailed product description"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-base text-gray-300 mb-2 font-medium">
                 Price *
@@ -214,7 +256,7 @@ export const ShopFormModal = ({
                 className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 disabled={loading}
-                placeholder="2599"
+                placeholder="49.99"
                 min="0"
                 step="0.01"
               />
@@ -229,22 +271,77 @@ export const ShopFormModal = ({
                 onChange={e =>
                   setFormData({
                     ...formData,
-                    type: e.target.value as 'Basic' | 'Exclusive',
+                    type: e.target.value as typeof formData.type,
                   })
                 }
                 className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 disabled={loading}
               >
-                <option value="Basic">Basic</option>
-                <option value="Exclusive">Exclusive</option>
+                {typeOptions.map(type => (
+                  <option key={type} value={type}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-base text-gray-300 mb-2 font-medium">
+                Status *
+              </label>
+              <select
+                value={formData.status}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as 'active' | 'inactive',
+                  })
+                }
+                className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                disabled={loading}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-base text-gray-300 mb-2 font-medium">
-              Details *
+              Categories *{' '}
+              <span className="text-sm text-gray-500">
+                (select at least one)
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {categoryOptions.map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggleCategory(cat)}
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    categories.includes(cat)
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              ))}
+            </div>
+            {categories.length === 0 && (
+              <p className="text-sm text-red-400 mt-2">
+                At least one category is required
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-base text-gray-300 mb-2 font-medium">
+              Details <span className="text-gray-500">(optional)</span>
             </label>
             <input
               type="text"
@@ -253,16 +350,14 @@ export const ShopFormModal = ({
                 setFormData({ ...formData, details: e.target.value })
               }
               className="w-full px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
               disabled={loading}
-              placeholder="LED light, energy efficient, minimalist design"
+              placeholder="Additional product details"
             />
           </div>
 
-          {/* Size Input */}
           <div>
             <label className="block text-base text-gray-300 mb-2 font-medium">
-              Sizes *
+              Sizes <span className="text-gray-500">(optional)</span>
             </label>
             <div className="flex gap-2 mb-3">
               <input
@@ -273,7 +368,7 @@ export const ShopFormModal = ({
                   e.key === 'Enter' && (e.preventDefault(), addSize())
                 }
                 className="flex-1 px-3 py-2 text-base bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter size (e.g., XL)"
+                placeholder="Enter size (e.g., M, XL, 42)"
                 disabled={loading}
               />
               <button
@@ -286,33 +381,28 @@ export const ShopFormModal = ({
               </button>
             </div>
 
-            {/* Display Sizes */}
-            <div className="flex flex-wrap gap-2">
-              {sizes.map(size => (
-                <span
-                  key={size}
-                  className="inline-flex items-center gap-2 px-3 py-1 bg-gray-800 text-white rounded border border-gray-700"
-                >
-                  {size}
-                  <button
-                    type="button"
-                    onClick={() => removeSize(size)}
-                    disabled={loading}
-                    className="hover:text-red-400 transition-colors"
+            {sizes.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {sizes.map(size => (
+                  <span
+                    key={size}
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-gray-800 text-white rounded border border-gray-700"
                   >
-                    <X className="h-4 w-4" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            {sizes.length === 0 && (
-              <p className="text-sm text-red-400 mt-2">
-                At least one size is required
-              </p>
+                    {size}
+                    <button
+                      type="button"
+                      onClick={() => removeSize(size)}
+                      disabled={loading}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             )}
           </div>
 
-          {/* Images */}
           <div>
             <label className="block text-base text-gray-300 mb-2 font-medium">
               Images {!shop && '*'}
@@ -321,7 +411,6 @@ export const ShopFormModal = ({
               </span>
             </label>
 
-            {/* Existing Images */}
             {existingImages.length > 0 && (
               <div className="mb-3">
                 <p className="text-sm text-gray-400 mb-2">Current Images:</p>
@@ -352,7 +441,6 @@ export const ShopFormModal = ({
               </div>
             )}
 
-            {/* New Images Upload */}
             <input
               type="file"
               accept="image/*"
@@ -363,7 +451,6 @@ export const ShopFormModal = ({
               required={!shop && existingImages.length === 0}
             />
 
-            {/* New Image Previews */}
             {previewImages.length > 0 && (
               <div className="mt-3">
                 <p className="text-sm text-gray-400 mb-2">New Images:</p>
@@ -406,7 +493,7 @@ export const ShopFormModal = ({
             </button>
             <Button
               type="submit"
-              disabled={loading || sizes.length === 0}
+              disabled={loading || categories.length === 0}
               className="px-6 py-2 text-base text-white rounded transition-colors disabled:opacity-50"
             >
               {loading ? (
