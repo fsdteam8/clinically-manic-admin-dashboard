@@ -137,11 +137,12 @@ export default function EditOfferModal({
         throw new Error(errorText || 'Failed to update offer')
       }
 
-      toast.success('Offer updated successfully')
+      const result = await res.json()
+      toast.success('Offer updated successfully!')
       onUpdated()
       onClose()
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update offer')
+      toast.error(err.message || 'Failed to update offer. Please try again.')
     } finally {
       setLoading(false)
     }

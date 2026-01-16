@@ -104,11 +104,12 @@ export default function EditEventModal({ open, onClose, event, token, onUpdated 
         throw new Error(errorText || "Failed to update event")
       }
 
-      toast.success("Event updated successfully")
+      const result = await res.json()
+      toast.success("Event updated successfully!")
       onUpdated() // refresh list
       onClose()
     } catch (err: any) {
-      toast.error(err.message || "Failed to update event")
+      toast.error(err.message || "Failed to update event. Please try again.")
     } finally {
       setLoading(false)
     }

@@ -61,11 +61,11 @@ export default function AddSubscriptionModal({
             return res.json();
         },
         onSuccess: () => {
-            toast.success("Plan created successfully");
+            toast.success("Subscription plan created successfully!");
             onClose();
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to create plan");
+            toast.error(error.message || "Failed to create subscription plan. Please try again.");
         },
     });
 

@@ -343,11 +343,12 @@ export default function EditSubscriptionModal({
 
             if (!res.ok) throw new Error("Failed to update subscription")
 
-            toast.success("Subscription updated successfully")
+            const result = await res.json()
+            toast.success("Subscription updated successfully!")
             onUpdated?.()
             onClose()
         } catch {
-            toast.error("Failed to update subscription")
+            toast.error("Failed to update subscription. Please try again.")
         }
     }
 

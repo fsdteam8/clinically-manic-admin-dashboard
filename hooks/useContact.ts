@@ -5,6 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { contactApi } from '@/lib/api/contactApi'
 import { useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 import type { ApiResponse, Contact } from '@/types/contact'
 
 export const useContacts = (page: number, limit: number) => {
@@ -33,6 +34,10 @@ export const useDeleteContact = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
+      toast.success('Contact deleted successfully!')
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || 'Failed to delete contact. Please try again.')
     },
   })
 }

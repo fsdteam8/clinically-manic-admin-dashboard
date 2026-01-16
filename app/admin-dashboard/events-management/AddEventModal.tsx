@@ -95,10 +95,11 @@ export default function AddEventModal({ open, onClose }: AddEventModalProps) {
                 throw new Error(errorText || "Failed to add event")
             }
 
-            toast.success("Event added successfully")
+            const result = await res.json()
+            toast.success("Event added successfully!")
             onClose()
         } catch (err: any) {
-            toast.error(err.message || "Failed to add event")
+            toast.error(err.message || "Failed to add event. Please try again.")
         } finally {
             setLoading(false)
         }

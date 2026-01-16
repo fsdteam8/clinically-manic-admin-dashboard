@@ -116,11 +116,12 @@ export default function AddOfferModal({
         throw new Error(errorText || 'Failed to add offer')
       }
 
-      toast.success('Offer added successfully')
+      const result = await res.json()
+      toast.success('Offer added successfully!')
       onAdded()
       onClose()
     } catch (err: any) {
-      toast.error(err.message || 'Failed to add offer')
+      toast.error(err.message || 'Failed to add offer. Please try again.')
     } finally {
       setLoading(false)
     }
